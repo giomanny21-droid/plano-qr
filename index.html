@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planos y Modelo 3D</title>
+<meta name="description" content="Plano 2D (PDF y DWG) y modelo 3D navegable del proyecto.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root {
+    --bg: #f4f2ee;
+    --card: #ffffff;
+    --ink: #1d1d1b;
+    --muted: #6b6962;
+    --line: #e2ded6;
+    --accent: #b3471d;        /* terracota (sillar/ladrillo) */
+    --accent-ink: #ffffff;
+    --ok: #2f7d4f;
+    --warn: #a86a00;
+    --warn-bg: #fff4dc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151513;
+      --card: #1f1f1c;
+      --ink: #f0eee9;
+      --muted: #a6a39b;
+      --line: #34332f;
+      --accent: #e0703f;
+      --accent-ink: #1a0d06;
+      --ok: #5cc28a;
+      --warn: #f0b84c;
+      --warn-bg: #2e2513;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.45;
+    min-height: 100vh;
+    padding: max(20px, env(safe-area-inset-top)) 16px 32px;
+  }
+  main { max-width: 460px; margin: 0 auto; }
+  header { padding: 12px 4px 20px; }
+  .tag {
+    display: inline-block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: 6px;
+  }
+  h1 { font-size: 24px; line-height: 1.2; margin: 0 0 4px; font-weight: 700; }
+  .sub { color: var(--muted); margin: 0; font-size: 15px; }
+
+  .btn {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; min-height: 72px; padding: 14px 16px; margin: 0 0 12px;
+    background: var(--card); color: var(--ink); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 14px;
+    font-size: 17px; font-weight: 600;
+    transition: transform .08s ease, border-color .15s ease;
+  }
+  .btn:active { transform: scale(.985); }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn .ico {
+    flex: 0 0 44px; height: 44px; border-radius: 10px; display: grid; place-items: center;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .btn.primary .ico { background: color-mix(in srgb, var(--accent-ink) 18%, transparent); }
+  .btn svg { width: 24px; height: 24px; }
+  .btn .txt { display: flex; flex-direction: column; }
+  .btn small { font-weight: 400; font-size: 13px; opacity: .8; }
+  .btn.off { opacity: .45; pointer-events: none; }
+
+  .aviso {
+    font-size: 14px; border-radius: 10px; padding: 10px 12px; margin: 4px 0 16px;
+    background: var(--warn-bg); color: var(--warn); display: none;
+  }
+  footer { color: var(--muted); font-size: 13px; margin-top: 18px; padding: 0 4px; }
+  footer p { margin: 4px 0; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="tag">Escaneaste el plano</span>
+    <h1 id="proyecto">Proyecto</h1>
+    <p class="sub" id="subtitulo"></p>
+  </header>
+
+  <a class="btn primary" id="b-3d" href="#" target="_blank" rel="noopener">
+    <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="m3 7 9 5 9-5M12 12v10"/></svg></span>
+    <span class="txt">Modelo 3D<small>Navegable en el navegador, sin apps</small></span>
+  </a>
+  <div class="aviso" id="aviso3d"></div>
+
+  <a class="btn" id="b-pdf" href="#" target="_blank" rel="noopener">
+    <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>
+    <span class="txt">Plano 2D (PDF)<small>Ver o descargar las láminas</small></span>
+  </a>
+
+  <a class="btn" id="b-dwg" href="#" target="_blank" rel="noopener">
+    <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg></span>
+    <span class="txt">Plano DWG<small>Archivo de AutoCAD</small></span>
+  </a>
+
+  <footer>
+    <p id="fecha"></p>
+    <p>El modelo 3D se abre en Autodesk Viewer; funciona en cualquier celular.</p>
+  </footer>
+</main>
+
+<script src="enlaces.js"></script>
+<script>
+  (function () {
+    var E = window.ENLACES || {};
+    document.getElementById("proyecto").textContent = E.proyecto || "Proyecto";
+    document.getElementById("subtitulo").textContent = E.subtitulo || "";
+
+    function boton(id, url) {
+      var b = document.getElementById(id);
+      if (url && url.trim()) { b.href = url.trim(); }
+      else {
+        b.classList.add("off");
+        b.removeAttribute("href");
+        b.querySelector("small").textContent = "No disponible por ahora";
+      }
+    }
+    boton("b-3d", E.modelo3d);
+    boton("b-pdf", E.pdf);
+    boton("b-dwg", E.dwg);
+
+    if (E.actualizado) {
+      var f = new Date(E.actualizado + "T00:00:00");
+      var dias = Math.floor((Date.now() - f.getTime()) / 86400000);
+      var vig = E.vigencia_dias || 30;
+      document.getElementById("fecha").textContent =
+        "Modelo 3D actualizado el " + f.toLocaleDateString("es-PE", { day: "numeric", month: "long", year: "numeric" }) + ".";
+      var av = document.getElementById("aviso3d");
+      if (E.modelo3d && dias >= vig) {
+        av.textContent = "El enlace del modelo 3D puede haber vencido. Si no abre, vuelve a intentarlo en unos días.";
+        av.style.display = "block";
+      }
+    }
+  })();
+</script>
+</body>
+</html>
