@@ -15,10 +15,10 @@ window.ENLACES = {
 
   // PDF del juego de planos (puede ser un archivo de esta misma carpeta,
   // p. ej. "archivos/planos.pdf", o un enlace compartido de OneDrive/Drive)
-  pdf:        "",
+  pdf:        "https://drive.google.com/file/d/17QrsbEO2_ugSphFw9662ZCKJ-Lzt5-wm/view?usp=sharing",
 
   // DWG (mismo criterio que el PDF)
-  dwg:        "",
+  dwg:        "https://drive.google.com/file/d/1zkI-iY79D-pgyAcec2F7kWv0Mt4U2HYp/view?usp=sharing",
 
   // Enlace de la Shared View de Revit (Autodesk Viewer). VENCE A LOS 30 DÍAS.
   modelo3d:   "",
