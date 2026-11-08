@@ -89,7 +89,7 @@
     <p class="sub" id="subtitulo"></p>
   </header>
 
-  <a class="btn primary" id="b-3d" href="#" target="_blank" rel="noopener">
+  <a class="btn primary" id="b-3d" href="#">
     <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="m3 7 9 5 9-5M12 12v10"/></svg></span>
     <span class="txt">Modelo 3D<small>Navegable en el navegador, sin apps</small></span>
   </a>
@@ -107,7 +107,7 @@
 
   <footer>
     <p id="fecha"></p>
-    <p>El modelo 3D se abre en Autodesk Viewer; funciona en cualquier celular.</p>
+    <p>El modelo 3D se abre en el navegador; funciona en cualquier celular, sin apps.</p>
   </footer>
 </main>
 
@@ -138,7 +138,7 @@
       document.getElementById("fecha").textContent =
         "Modelo 3D actualizado el " + f.toLocaleDateString("es-PE", { day: "numeric", month: "long", year: "numeric" }) + ".";
       var av = document.getElementById("aviso3d");
-      if (E.modelo3d && dias >= vig) {
+      if (E.modelo3d && vig > 0 && dias >= vig) {
         av.textContent = "El enlace del modelo 3D puede haber vencido. Si no abre, vuelve a intentarlo en unos días.";
         av.style.display = "block";
       }

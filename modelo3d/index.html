@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Modelo 3D</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root { --bg:#f4f2ee; --card:#ffffffee; --ink:#1d1d1b; --muted:#6b6962; --line:#e2ded6; --accent:#b3471d; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#151513; --card:#1f1f1ced; --ink:#f0eee9; --muted:#a6a39b; --line:#34332f; --accent:#e0703f; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow:hidden; }
+  #vista { position:fixed; inset:0; touch-action:none; }
+  .barra { position:fixed; left:12px; right:12px; top:max(12px, env(safe-area-inset-top));
+    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px;
+    background:var(--card); border:1px solid var(--line); backdrop-filter: blur(6px); }
+  .barra a { color:var(--accent); text-decoration:none; font-weight:600; font-size:15px; white-space:nowrap; }
+  .barra h1 { font-size:15px; margin:0; font-weight:600; flex:1; min-width:0;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .panel { position:fixed; left:12px; right:12px; bottom:max(12px, env(safe-area-inset-bottom));
+    padding:12px 14px; border-radius:12px; background:var(--card); border:1px solid var(--line);
+    backdrop-filter: blur(6px); max-width:520px; margin:0 auto; }
+  .fila { display:flex; justify-content:space-between; align-items:baseline; font-size:14px; }
+  .fila b { font-size:16px; }
+  input[type=range] { width:100%; margin:10px 0 4px; accent-color:var(--accent); height:28px; }
+  .nota { color:var(--muted); font-size:12px; margin:4px 0 0; }
+  #carga { position:fixed; inset:0; display:grid; place-items:center; color:var(--muted); font-size:15px; }
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="vista"></div>
+<div id="carga">Cargando modelo 3D…</div>
+
+<div class="barra">
+  <a href="../">‹ Volver</a>
+  <h1>Modelo 3D · Idilio Vistania</h1>
+</div>
+
+<div class="panel">
+  <div class="fila"><span>Mostrar hasta</span><b id="nivel">Todo el edificio</b></div>
+  <input id="corte" type="range" min="1" max="17" step="1" value="17" aria-label="Mostrar hasta el nivel">
+  <p class="nota">Arrastra para girar · pellizca para acercar · dos dedos para mover.
+    Modelo volumétrico generado desde los planos (muros, columnas y losas).</p>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+const NOMBRES = ["Sótano 02","Sótano 01","Semisótano","1er nivel","2do nivel","3er nivel","4to nivel",
+  "5to nivel","6to nivel","7mo nivel","8vo nivel","9no nivel","10mo nivel","11vo nivel","12vo nivel","Azotea","Techos"];
+
+const cont = document.getElementById("vista");
+const oscuro = matchMedia("(prefers-color-scheme: dark)").matches;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+cont.appendChild(renderer.domElement);
+
+const escena = new THREE.Scene();
+const camara = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.5, 2000);
+const control = new OrbitControls(camara, renderer.domElement);
+control.enableDamping = true;
+
+escena.add(new THREE.HemisphereLight(0xffffff, oscuro ? 0x222222 : 0x8a8478, 1.6));
+const sol = new THREE.DirectionalLight(0xffffff, 2.2);
+sol.position.set(40, 70, 30);
+escena.add(sol);
+const relleno = new THREE.DirectionalLight(0xffffff, 0.6);
+relleno.position.set(-40, 30, -30);
+escena.add(relleno);
+
+const grilla = new THREE.GridHelper(120, 24, oscuro ? 0x555555 : 0xbbb6ac, oscuro ? 0x333333 : 0xd8d3c9);
+escena.add(grilla);
+
+const niveles = {};   // "N05" -> [objetos]
+new GLTFLoader().load("edificio.glb", (gltf) => {
+  const modelo = gltf.scene;
+  modelo.traverse((o) => {
+    if (o.isMesh) {
+      const k = (o.name.match(/N\d\d/) || (o.parent && o.parent.name.match(/N\d\d/)) || [null])[0];
+      if (k) (niveles[k] = niveles[k] || []).push(o);
+      o.material.side = THREE.DoubleSide;
+    }
+  });
+  // bordes suaves para que se lean los muros
+  modelo.traverse((o) => {
+    if (o.isMesh && /muros|columnas/.test(o.name)) {
+      const bordes = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 30),
+        new THREE.LineBasicMaterial({ color: 0x6f6a60, transparent: true, opacity: 0.35 }));
+      o.add(bordes);
+    }
+  });
+  escena.add(modelo);
+  const caja = new THREE.Box3().setFromObject(modelo);
+  const c = caja.getCenter(new THREE.Vector3()), t = caja.getSize(new THREE.Vector3());
+  grilla.position.y = caja.min.y;
+  control.target.copy(c);
+  // distancia para que la esfera que envuelve al edificio quepa en el ángulo más estrecho
+  const r = t.length() / 2;
+  const vfov = THREE.MathUtils.degToRad(camara.fov);
+  const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camara.aspect);
+  const d = r / Math.sin(Math.min(vfov, hfov) / 2) * 0.9;
+  const dir = new THREE.Vector3(0.62, 0.38, 0.69).normalize();
+  camara.position.copy(c).addScaledVector(dir, d);
+  control.update();
+  document.getElementById("carga").remove();
+}, undefined, () => {
+  document.getElementById("carga").textContent = "No se pudo cargar el modelo. Revisa tu conexión.";
+});
+
+const corte = document.getElementById("corte"), etiqueta = document.getElementById("nivel");
+corte.addEventListener("input", () => {
+  const n = +corte.value;
+  for (const [k, objs] of Object.entries(niveles)) {
+    const i = +k.slice(1);
+    objs.forEach((o) => (o.visible = i <= n));
+  }
+  etiqueta.textContent = n === 17 ? "Todo el edificio" : NOMBRES[n - 1];
+});
+
+addEventListener("resize", () => {
+  camara.aspect = innerWidth / innerHeight;
+  camara.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+renderer.setAnimationLoop(() => { control.update(); renderer.render(escena, camara); });
+</script>
+</body>
+</html>

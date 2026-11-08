@@ -19,14 +19,17 @@ window.ENLACES = {
 
   // DWG (mismo criterio que el PDF)
   // (enlace de DESCARGA directa: un DWG no se puede previsualizar en el celular)
-  dwg:        "https://drive.google.com/uc?export=download&id=1zkI-iY79D-pgyAcec2F7kWv0Mt4U2HYp",
+  // (drive.usercontent.google.com descarga directo y no lo intercepta la app de Drive del celular)
+  dwg:        "https://drive.usercontent.google.com/download?id=1zkI-iY79D-pgyAcec2F7kWv0Mt4U2HYp&export=download&confirm=t",
 
-  // Enlace de la Shared View de Revit (Autodesk Viewer). VENCE A LOS 30 DÍAS.
-  modelo3d:   "",
+  // Modelo 3D. Ahora: visor propio de esta página ("modelo3d/"), que NO vence.
+  // Si luego usas la Shared View de Revit, pega aquí su enlace (vence a los 30 días)
+  // y cambia vigencia_dias a 30.
+  modelo3d:   "modelo3d/",
 
   // Fecha en que pegaste el último enlace del modelo 3D (AAAA-MM-DD)
-  actualizado: "2026-11-07",
+  actualizado: "2026-11-08",
 
-  // Días que dura la Shared View (para avisar cuándo vence)
-  vigencia_dias: 30
+  // Días que dura el enlace 3D (0 = no vence; 30 para una Shared View de Revit)
+  vigencia_dias: 0
 };
