@@ -18,7 +18,8 @@ window.ENLACES = {
   pdf:        "https://drive.google.com/file/d/17QrsbEO2_ugSphFw9662ZCKJ-Lzt5-wm/view?usp=sharing",
 
   // DWG (mismo criterio que el PDF)
-  dwg:        "https://drive.google.com/file/d/1zkI-iY79D-pgyAcec2F7kWv0Mt4U2HYp/view?usp=sharing",
+  // (enlace de DESCARGA directa: un DWG no se puede previsualizar en el celular)
+  dwg:        "https://drive.google.com/uc?export=download&id=1zkI-iY79D-pgyAcec2F7kWv0Mt4U2HYp",
 
   // Enlace de la Shared View de Revit (Autodesk Viewer). VENCE A LOS 30 DÍAS.
   modelo3d:   "",
