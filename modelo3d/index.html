@@ -27,6 +27,13 @@
   .fila b { font-size:16px; }
   input[type=range] { width:100%; margin:10px 0 4px; accent-color:var(--accent); height:28px; }
   .nota { color:var(--muted); font-size:12px; margin:4px 0 0; }
+  .grupo { display:flex; gap:6px; margin:0 0 10px; }
+  .grupo button, .pasos button { flex:1; font:inherit; font-size:14px; font-weight:600; padding:8px 6px;
+    border-radius:9px; border:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; }
+  .grupo button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .pasos { display:flex; align-items:center; gap:8px; }
+  .pasos button { flex:0 0 44px; height:40px; font-size:20px; line-height:1; }
+  .pasos input { flex:1; margin:0; }
   #carga { position:fixed; inset:0; display:grid; place-items:center; color:var(--muted); font-size:15px; }
 </style>
 <script type="importmap">
@@ -46,8 +53,20 @@
 </div>
 
 <div class="panel">
-  <div class="fila"><span>Mostrar hasta</span><b id="nivel">Todo el edificio</b></div>
-  <input id="corte" type="range" min="1" max="17" step="1" value="17" aria-label="Mostrar hasta el nivel">
+  <div class="grupo" role="group" aria-label="Qué pisos mostrar">
+    <button id="m-hasta" aria-pressed="true">Hasta este piso</button>
+    <button id="m-solo" aria-pressed="false">Solo este piso</button>
+  </div>
+  <div class="grupo" role="group" aria-label="Tipo de vista">
+    <button id="v-3d" aria-pressed="true">Vista 3D</button>
+    <button id="v-planta" aria-pressed="false">Vista en planta</button>
+  </div>
+  <div class="fila"><span id="rotulo">Mostrar hasta</span><b id="nivel">Todo el edificio</b></div>
+  <div class="pasos">
+    <button id="bajar" aria-label="Piso anterior">−</button>
+    <input id="corte" type="range" min="1" max="17" step="1" value="17" aria-label="Piso">
+    <button id="subir" aria-label="Piso siguiente">+</button>
+  </div>
   <p class="nota">Arrastra para girar · pellizca para acercar · dos dedos para mover.
     Modelo volumétrico generado desde los planos (muros, columnas y losas).</p>
 </div>
@@ -102,32 +121,71 @@ new GLTFLoader().load("edificio.glb", (gltf) => {
     }
   });
   escena.add(modelo);
-  const caja = new THREE.Box3().setFromObject(modelo);
-  const c = caja.getCenter(new THREE.Vector3()), t = caja.getSize(new THREE.Vector3());
-  grilla.position.y = caja.min.y;
-  control.target.copy(c);
-  // distancia para que la esfera que envuelve al edificio quepa en el ángulo más estrecho
-  const r = t.length() / 2;
-  const vfov = THREE.MathUtils.degToRad(camara.fov);
-  const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camara.aspect);
-  const d = r / Math.sin(Math.min(vfov, hfov) / 2) * 0.9;
-  const dir = new THREE.Vector3(0.62, 0.38, 0.69).normalize();
-  camara.position.copy(c).addScaledVector(dir, d);
-  control.update();
+  grilla.position.y = new THREE.Box3().setFromObject(modelo).min.y;
+  aplicar(true);
   document.getElementById("carga").remove();
 }, undefined, () => {
   document.getElementById("carga").textContent = "No se pudo cargar el modelo. Revisa tu conexión.";
 });
 
+// ---------- piso por piso ----------
 const corte = document.getElementById("corte"), etiqueta = document.getElementById("nivel");
-corte.addEventListener("input", () => {
+const rotulo = document.getElementById("rotulo");
+let modo = "hasta";       // "hasta" = del sótano hasta el piso elegido · "solo" = únicamente ese piso
+let vista = "3d";         // "3d" o "planta" (cámara desde arriba)
+
+function cajaVisible() {
+  const caja = new THREE.Box3();
+  for (const objs of Object.values(niveles)) objs.forEach((o) => { if (o.visible) caja.expandByObject(o); });
+  return caja;
+}
+
+// encuadra lo visible; en planta mira desde arriba, en 3D desde una esquina
+function encuadrar() {
+  const caja = cajaVisible();
+  if (caja.isEmpty()) return;
+  const c = caja.getCenter(new THREE.Vector3()), t = caja.getSize(new THREE.Vector3());
+  const vfov = THREE.MathUtils.degToRad(camara.fov);
+  const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camara.aspect);
+  control.target.copy(c);
+  if (vista === "planta") {
+    // que quepan el largo y el ancho de la planta en la pantalla
+    const d = Math.max((t.x / 2) / Math.tan(hfov / 2), (t.z / 2) / Math.tan(vfov / 2)) * 1.25;
+    camara.position.set(c.x, caja.max.y + d, c.z + 0.001);
+  } else {
+    const r = t.length() / 2;
+    const d = r / Math.sin(Math.min(vfov, hfov) / 2) * (modo === "solo" ? 1.05 : 0.9);
+    camara.position.copy(c).addScaledVector(new THREE.Vector3(0.62, 0.38, 0.69).normalize(), d);
+  }
+  control.update();
+}
+
+function aplicar(reencuadrar) {
   const n = +corte.value;
   for (const [k, objs] of Object.entries(niveles)) {
     const i = +k.slice(1);
-    objs.forEach((o) => (o.visible = i <= n));
+    objs.forEach((o) => (o.visible = modo === "solo" ? i === n : i <= n));
   }
-  etiqueta.textContent = n === 17 ? "Todo el edificio" : NOMBRES[n - 1];
-});
+  rotulo.textContent = modo === "solo" ? "Piso" : "Mostrar hasta";
+  etiqueta.textContent = modo === "hasta" && n === 17 ? "Todo el edificio" : NOMBRES[n - 1];
+  if (reencuadrar) encuadrar();
+}
+
+function marcar(a, b, activo) { a.setAttribute("aria-pressed", activo); b.setAttribute("aria-pressed", !activo); }
+const mH = document.getElementById("m-hasta"), mS = document.getElementById("m-solo");
+const v3 = document.getElementById("v-3d"), vP = document.getElementById("v-planta");
+mH.onclick = () => { modo = "hasta"; marcar(mH, mS, true); aplicar(true); };
+mS.onclick = () => {
+  modo = "solo"; marcar(mH, mS, false);
+  if (+corte.value === 17) corte.value = 6;        // empieza en un piso típico (3er nivel)
+  aplicar(true);
+};
+v3.onclick = () => { vista = "3d"; marcar(v3, vP, true); encuadrar(); };
+vP.onclick = () => { vista = "planta"; marcar(v3, vP, false); encuadrar(); };
+document.getElementById("bajar").onclick = () => { corte.value = Math.max(1, +corte.value - 1); aplicar(modo === "solo"); };
+document.getElementById("subir").onclick = () => { corte.value = Math.min(17, +corte.value + 1); aplicar(modo === "solo"); };
+corte.addEventListener("input", () => aplicar(false));
+corte.addEventListener("change", () => aplicar(modo === "solo"));
 
 addEventListener("resize", () => {
   camara.aspect = innerWidth / innerHeight;
