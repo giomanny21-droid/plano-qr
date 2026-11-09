@@ -95,6 +95,12 @@
   </a>
   <div class="aviso" id="aviso3d"></div>
 
+  <a class="btn" id="b-revit" href="#" target="_blank" rel="noopener">
+    <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 21V9l8-6 8 6v12z"/><path d="M9 21v-6h6v6M4 13h16"/></svg></span>
+    <span class="txt">Modelo 3D de Revit<small id="revit-sub">Vista compartida de Autodesk</small></span>
+  </a>
+  <div class="aviso" id="aviso-revit"></div>
+
   <a class="btn" id="b-pdf" href="#" target="_blank" rel="noopener">
     <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>
     <span class="txt">Plano 2D (PDF)<small>Ver o descargar las láminas</small></span>
@@ -130,6 +136,23 @@
     boton("b-3d", E.modelo3d);
     boton("b-pdf", E.pdf);
     boton("b-dwg", E.dwg);
+    boton("b-revit", E.revit);
+
+    // Shared View de Revit: avisa cuando ya pasaron sus días de vigencia
+    if (E.revit && E.revit_actualizado) {
+      var fr = new Date(E.revit_actualizado + "T00:00:00");
+      var vr = E.revit_vigencia_dias || 30;
+      var vence = new Date(fr.getTime() + vr * 86400000);
+      var opc = { day: "numeric", month: "long", year: "numeric" };
+      if (Date.now() >= vence.getTime()) {
+        var ar = document.getElementById("aviso-revit");
+        ar.textContent = "El enlace del modelo de Revit puede haber vencido (" + vence.toLocaleDateString("es-PE", opc) + "). Usa el Modelo 3D de arriba.";
+        ar.style.display = "block";
+      } else {
+        document.getElementById("revit-sub").textContent =
+          "Vista compartida de Autodesk · válida hasta el " + vence.toLocaleDateString("es-PE", opc);
+      }
+    }
 
     if (E.actualizado) {
       var f = new Date(E.actualizado + "T00:00:00");
