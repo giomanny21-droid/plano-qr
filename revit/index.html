@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Modelo de Revit</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root { --bg:#f4f2ee; --card:#ffffff; --ink:#1d1d1b; --muted:#6b6962; --line:#e2ded6;
+          --accent:#b3471d; --accent-ink:#ffffff; --warn:#a86a00; --warn-bg:#fff4dc; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#151513; --card:#1f1f1c; --ink:#f0eee9; --muted:#a6a39b; --line:#34332f;
+            --accent:#e0703f; --accent-ink:#1a0d06; --warn:#f0b84c; --warn-bg:#2e2513; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); line-height: 1.4; min-height: 100vh;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: max(16px, env(safe-area-inset-top)) 16px 32px; }
+  main { max-width: 460px; margin: 0 auto; }
+  .volver { color: var(--accent); font-weight: 600; text-decoration: none; font-size: 15px; }
+  h1 { font-size: 22px; margin: 14px 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+  .aviso { font-size: 14px; border-radius: 10px; padding: 10px 12px; margin: 0 0 14px;
+    background: var(--warn-bg); color: var(--warn); display: none; }
+  h2 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+    margin: 18px 4px 8px; font-weight: 600; }
+  .piso { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 14px 16px; margin: 0 0 8px; min-height: 54px; background: var(--card); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: 600; }
+  .piso:hover { border-color: var(--accent); }
+  .piso.todo { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .piso span { font-weight: 400; font-size: 13px; opacity: .75; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .grid .piso { margin: 0; }
+  footer { color: var(--muted); font-size: 13px; margin-top: 18px; padding: 0 4px; }
+</style>
+</head>
+<body>
+<main>
+  <a class="volver" href="../">‹ Volver</a>
+  <h1>Modelo de Revit</h1>
+  <p class="sub" id="sub">Vistas compartidas de Autodesk · se abren en el navegador.</p>
+  <div class="aviso" id="aviso"></div>
+
+  <a class="piso todo" id="todo" href="#" target="_blank" rel="noopener">Edificio completo <span>3D</span></a>
+
+  <h2>Piso por piso</h2>
+  <div class="grid" id="pisos"></div>
+
+  <footer>Cada piso muestra su losa, muros, columnas, placas y las vigas que cargan la losa de arriba.
+    Gira con un dedo y acerca pellizcando.</footer>
+</main>
+
+<script src="../enlaces.js"></script>
+<script>
+  (function () {
+    var E = window.ENLACES || {}, P = E.revit_pisos || [];
+    var todo = document.getElementById("todo");
+    if (E.revit) todo.href = E.revit; else todo.style.display = "none";
+
+    var cont = document.getElementById("pisos");
+    // de arriba hacia abajo, como se lee un edificio
+    P.slice().reverse().forEach(function (p) {
+      var a = document.createElement("a");
+      a.className = "piso"; a.href = p[1]; a.target = "_blank"; a.rel = "noopener";
+      a.textContent = p[0];
+      cont.appendChild(a);
+    });
+
+    var f = E.revit_pisos_actualizado || E.revit_actualizado;
+    if (f) {
+      var vence = new Date(new Date(f + "T00:00:00").getTime() + (E.revit_vigencia_dias || 30) * 86400000);
+      var txt = vence.toLocaleDateString("es-PE", { day: "numeric", month: "long", year: "numeric" });
+      if (Date.now() >= vence.getTime()) {
+        var av = document.getElementById("aviso");
+        av.textContent = "Estos enlaces pueden haber vencido (" + txt + "). Usa el Modelo 3D de la página anterior.";
+        av.style.display = "block";
+      } else {
+        document.getElementById("sub").textContent = "Vistas compartidas de Autodesk · válidas hasta el " + txt + ".";
+      }
+    }
+  })();
+</script>
+</body>
+</html>
