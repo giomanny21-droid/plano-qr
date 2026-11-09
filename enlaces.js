@@ -2,7 +2,7 @@
 //  ENLACES DEL PROYECTO  —  ESTE ES EL ÚNICO ARCHIVO QUE EDITAS
 // =====================================================================
 //  Cada vez que renueves la Shared View de Revit (cada 30 días), pega
-//  aquí el enlace nuevo en "modelo3d" y cambia la fecha "actualizado".
+//  aquí el enlace nuevo en "revit" y cambia la fecha "revit_actualizado".
 //  Guarda (Commit changes) y en ~1 minuto la página ya muestra el nuevo
 //  enlace. El QR impreso NO cambia nunca.
 //
@@ -31,5 +31,12 @@ window.ENLACES = {
   actualizado: "2026-11-08",
 
   // Días que dura el enlace 3D (0 = no vence; 30 para una Shared View de Revit)
-  vigencia_dias: 0
+  vigencia_dias: 0,
+
+  // Modelo 3D de REVIT (Shared View de Autodesk, desde IDILIO-ARQ.rvt). VENCE a los 30 días:
+  // al renovarla (Revit > Colaborar > Compartir > Vistas compartidas) pega aquí el enlace
+  // nuevo y cambia revit_actualizado. Vacío ("") = el botón aparece como "No disponible".
+  revit:            "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDE4NDc5N185M2JlZmE1Zi0xZTcyLTQ0MTEtODFmMi0yNTViMmNjN2MxOWEuY29sbGFib3JhdGlvbg",
+  revit_actualizado: "2026-11-08",
+  revit_vigencia_dias: 30
 };
