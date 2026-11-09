@@ -77,20 +77,6 @@
     font-size: 14px; border-radius: 10px; padding: 10px 12px; margin: 4px 0 16px;
     background: var(--warn-bg); color: var(--warn); display: none;
   }
-  .pisos {
-    margin: -4px 0 12px; padding: 12px 14px; background: var(--card);
-    border: 1px solid var(--line); border-radius: 14px;
-  }
-  .pisos label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-  .pisos-fila { display: flex; gap: 8px; }
-  .pisos select {
-    flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--bg); color: var(--ink);
-  }
-  .pisos .abrir {
-    flex: 0 0 auto; display: grid; place-items: center; padding: 0 18px; border-radius: 10px;
-    background: var(--accent); color: var(--accent-ink); font-weight: 600; text-decoration: none;
-  }
   footer { color: var(--muted); font-size: 13px; margin-top: 18px; padding: 0 4px; }
   footer p { margin: 4px 0; }
 </style>
@@ -109,19 +95,11 @@
   </a>
   <div class="aviso" id="aviso3d"></div>
 
-  <a class="btn" id="b-revit" href="#" target="_blank" rel="noopener">
+  <a class="btn" id="b-revit" href="revit/">
     <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 21V9l8-6 8 6v12z"/><path d="M9 21v-6h6v6M4 13h16"/></svg></span>
-    <span class="txt">Modelo 3D de Revit<small id="revit-sub">Vista compartida de Autodesk</small></span>
+    <span class="txt">Modelo 3D de Revit<small id="revit-sub">Edificio completo y piso por piso</small></span>
   </a>
   <div class="aviso" id="aviso-revit"></div>
-
-  <div class="pisos" id="pisos-revit">
-    <label for="sel-piso">Revit piso por piso</label>
-    <div class="pisos-fila">
-      <select id="sel-piso" aria-label="Piso del modelo de Revit"></select>
-      <a class="abrir" id="abrir-piso" href="#" target="_blank" rel="noopener">Abrir</a>
-    </div>
-  </div>
 
   <a class="btn" id="b-pdf" href="#" target="_blank" rel="noopener">
     <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>
@@ -158,25 +136,8 @@
     boton("b-3d", E.modelo3d);
     boton("b-pdf", E.pdf);
     boton("b-dwg", E.dwg);
-    boton("b-revit", E.revit);
-
-    // Revit piso por piso: lista de Shared Views (una por nivel)
-    var P = E.revit_pisos || [], sel = document.getElementById("sel-piso"), ab = document.getElementById("abrir-piso");
-    if (!P.length) { document.getElementById("pisos-revit").style.display = "none"; }
-    else {
-      P.forEach(function (p, i) {
-        var o = document.createElement("option"); o.value = i; o.textContent = p[0]; sel.appendChild(o);
-      });
-      sel.value = Math.min(5, P.length - 1);            // 3er nivel por defecto (piso típico)
-      var poner = function () { ab.href = P[+sel.value][1]; };
-      sel.addEventListener("change", poner); poner();
-      if (E.revit_pisos_actualizado) {
-        var vp = new Date(new Date(E.revit_pisos_actualizado + "T00:00:00").getTime() + (E.revit_vigencia_dias || 30) * 86400000);
-        document.querySelector("#pisos-revit label").textContent = Date.now() >= vp.getTime()
-          ? "Revit piso por piso (puede haber vencido)"
-          : "Revit piso por piso · hasta el " + vp.toLocaleDateString("es-PE", { day: "numeric", month: "long" });
-      }
-    }
+    // Revit: abre la página revit/ (edificio completo + un botón por piso)
+    boton("b-revit", (E.revit || (E.revit_pisos || []).length) ? "revit/" : "");
 
     // Shared View de Revit: avisa cuando ya pasaron sus días de vigencia
     if (E.revit && E.revit_actualizado) {
@@ -190,7 +151,7 @@
         ar.style.display = "block";
       } else {
         document.getElementById("revit-sub").textContent =
-          "Edificio completo · válido hasta el " + vence.toLocaleDateString("es-PE", opc);
+          "Edificio completo y piso por piso · hasta el " + vence.toLocaleDateString("es-PE", opc);
       }
     }
 
