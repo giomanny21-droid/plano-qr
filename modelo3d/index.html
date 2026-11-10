@@ -43,7 +43,14 @@
     border-radius:50%; background:var(--accent); opacity:.85; }
   #ayuda { position:fixed; right:12px; left:150px; display:none; z-index:5; font-size:12px; color:var(--muted);
     background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 10px; }
+  #altura { position:fixed; right:14px; display:none; flex-direction:column; gap:10px; z-index:6; }
+  #altura button { width:58px; height:58px; border-radius:50%; font-size:22px; font-weight:700;
+    border:2px solid var(--line); background:var(--card); color:var(--accent); touch-action:none; cursor:pointer; }
+  #altura button:active { background:var(--accent); color:#fff; }
   body.recorrer #joy, body.recorrer #ayuda { display:block; }
+  body.recorrer #altura { display:flex; }
+  body.recorrer #ayuda { right:86px; }
+  @media (pointer: coarse) { #ayuda .pc { display:none; } }
   body.recorrer .ocultable { display:none; }
 </style>
 <script type="importmap">
@@ -85,8 +92,9 @@
 </div>
 
 <div id="joy" aria-label="Joystick para caminar"><i></i></div>
-<div id="ayuda">Recorrido: mueve el círculo para caminar · arrastra en la pantalla para mirar alrededor.
-  En PC: W A S D o flechas, y arrastra con el mouse.</div>
+<div id="ayuda">Círculo: caminar · arrastra: mirar · mantén ▲ ▼: subir o bajar.
+  <span class="pc">En PC: W A S D o flechas para caminar, E sube, Q baja, y arrastra con el mouse para mirar.</span></div>
+<div id="altura"><button id="elevar" aria-label="Elevarse">▲</button><button id="descender" aria-label="Bajar">▼</button></div>
 
 <script type="module">
 import * as THREE from "three";
@@ -305,13 +313,29 @@ function salirRecorrido() {
   document.body.classList.remove("recorrer");
   control.enabled = true;
   camara.near = 0.5; camara.fov = 40; camara.updateProjectionMatrix();
-  mov.x = mov.y = 0; teclas.clear();
+  mov.x = mov.y = 0; teclas.clear(); vertical = 0;
 }
 // el joystick va justo encima del panel inferior
 function colocarJoy() {
   const alto = document.querySelector(".panel").getBoundingClientRect().height;
   joy.style.bottom = (alto + 24) + "px";
   document.getElementById("ayuda").style.bottom = (alto + 24) + "px";
+  document.getElementById("altura").style.bottom = (alto + 24) + "px";
+}
+
+// subir / bajar libremente: botones ▲ ▼ (mantener presionado) o teclas E / Q
+let vertical = 0;
+[["elevar", 1], ["descender", -1]].forEach(([id, s]) => {
+  const b = document.getElementById(id);
+  b.addEventListener("pointerdown", (e) => { vertical = s; e.preventDefault(); });
+  ["pointerup", "pointercancel", "pointerleave"].forEach((t) => b.addEventListener(t, () => { if (vertical === s) vertical = 0; }));
+});
+const VEL_V = 1.5;                // m/s subiendo o bajando
+// al subir o bajar, la etiqueta y los pisos visibles siguen la altura de la cámara
+function pisoActual() {
+  let n = 1;
+  for (let i = 1; i <= 17; i++) { const c = cajaPiso(i); if (!c.isEmpty() && camara.position.y - 1.0 >= c.min.y) n = i; }
+  return n;
 }
 
 // joystick
@@ -360,6 +384,12 @@ function caminar(dt) {
   if (teclas.has("s") || teclas.has("arrowdown")) adelante -= 1;
   if (teclas.has("d") || teclas.has("arrowright")) lado += 1;
   if (teclas.has("a") || teclas.has("arrowleft")) lado -= 1;
+  let v = vertical + (teclas.has("e") || teclas.has("pageup") ? 1 : 0) - (teclas.has("q") || teclas.has("pagedown") ? 1 : 0);
+  if (v) {
+    camara.position.y += Math.sign(v) * VEL_V * dt;
+    const n = pisoActual();
+    if (n !== +corte.value) { corte.value = n; aplicarRecorrido(); }
+  }
   if (!adelante && !lado) return;
   const f = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));   // al frente, sin subir ni bajar
   const der = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
