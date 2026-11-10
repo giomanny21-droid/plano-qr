@@ -40,6 +40,32 @@ window.ENLACES = {
   revit_actualizado: "2026-11-08",
   revit_vigencia_dias: 30,
 
+  // MODELO DEL PROYECTO (Revit del usuario: 2026001-SDS-IV-XX-M3D-ARQ-004.rvt, compartido desde
+  // la copia QR-ARQ-004.rvt). Es el que se muestra primero en la página revit/.
+  // Vence a los 30 días: renovar con "..." > Extend en Vistas compartidas y cambiar arq_actualizado.
+  arq_actualizado: "2026-11-09",
+  arq: "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NDg4OV9iN2NiY2EyNy1mZWI4LTRlYTgtODYxYy05ZDc5ODdjODQ0OWIuY29sbGFib3JhdGlvbg",
+  arq_pisos: [
+    ["Sótano 02",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTEyOF9iNGNlYmQwMS0xMDc0LTRlOGQtODI3Ni0yOTBjNGY4ZmQ5OGEuY29sbGFib3JhdGlvbg"],
+    ["Sótano 01",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTIxOF8yOGI3M2IwZS03ZDM5LTRkOTctODQ0Mi0yOWI5ZjI5MjZkMzYuY29sbGFib3JhdGlvbg"],
+    ["Semisótano",  "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTMwOF80MDJhYWNiYy0wNTI1LTQ5MmYtOWViOC00NzhhZGNkNGRkNDMuY29sbGFib3JhdGlvbg"],
+    ["1er nivel",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTM5Ml9jMmRkZThjZi02MjZiLTQxY2EtYWI2OC02MDJmMzYwNmJiNjUuY29sbGFib3JhdGlvbg"],
+    ["2do nivel",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTQ3N18xMmVjNTc4OS1lN2M0LTQ5ZDgtYWM1NS1hZjk5NDM3Nzc2MmMuY29sbGFib3JhdGlvbg"],
+    ["3er nivel",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTU2NF9kNjlmYjliNy00NzFlLTRjZDAtODQzNC1jYzNjNTVlYzQ1YzguY29sbGFib3JhdGlvbg"],
+    ["4to nivel",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTY0OF9mYzAwZTZkOC01NDVlLTQzMWYtODIzNS1hOTM1YTFjMzY0YmEuY29sbGFib3JhdGlvbg"],
+    ["5to nivel",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTczM184ZTdkYmJlNC04MzAxLTQ1NDItYjFkMS01ZDIxNTZkZmU2MWYuY29sbGFib3JhdGlvbg"],
+    ["6to nivel",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTgyMF8zNDE0OTNiMi1iYjMwLTQ0MjAtYTA5ZS05ZGRjN2ZlNWNkMDMuY29sbGFib3JhdGlvbg"],
+    ["7mo nivel",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NTkxNl8zZDY5MDAyMi1lZGVlLTRmYzctYjQ5NS1jMDk5MzUwOTk4MjAuY29sbGFib3JhdGlvbg"],
+    ["8vo nivel",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NjA2MV8zNWYzZjg5My04ZDdlLTQ3OGYtODgyOC0wNjM3OGE1NjVlNzQuY29sbGFib3JhdGlvbg"],
+    ["9no nivel",   "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NjE3MV9kYjVmNDc3OC01NjUxLTQzOWItYWMyNS0yYmRlYjg2MzAxZjguY29sbGFib3JhdGlvbg"],
+    ["10mo nivel",  "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NjI1NV81MjUzNjZjYS1kYjc3LTRmYWYtYmIwNy01OWYzZDFlYTgxYjAuY29sbGFib3JhdGlvbg"],
+    ["11vo nivel",  "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NjQ2N18xMjNlYjY2ZS0yMjM3LTQyN2YtYjNlYi03YTk4NDMyNjY5YmIuY29sbGFib3JhdGlvbg"],
+    ["12vo nivel",  "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NjU1NF9hMzQ2NmMwNS0xZDdhLTRhMTMtOWIwOC0wOTg2NGFhZTg2OWYuY29sbGFib3JhdGlvbg"],
+    ["13vo nivel",  "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3NjY3N18xOGI0OTdjNC0yN2JkLTRhNzgtOWNiNy00OTY1ZDI5OGJlZWUuY29sbGFib3JhdGlvbg"],
+    ["14vo nivel (techo)", "https://viewer.autodesk.com/id/dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YTM2MHZpZXdlci90MTc5NDI3Njk4Nl8zMWZlOGU1ZC04NGZmLTQyZWUtYTc1Yy0yZTEyN2RkZTYwMjMuY29sbGFib3JhdGlvbg"]
+  ],
+
+  // ---- Modelo RECONSTRUIDO por Claude desde los DXF (IDILIO-ARQ.rvt): sección aparte en revit/ ----
   // Revit PISO POR PISO: una Shared View por nivel (vistas "01 ..." a "17 ..." de IDILIO-ARQ.rvt).
   // También vencen a los 30 días. Para NO cambiar los enlaces: en Revit > Vistas compartidas >
   // "..." de cada una > Extend, y luego actualiza aquí revit_pisos_actualizado.
