@@ -59,7 +59,8 @@
 
 <div class="barra">
   <a href="../">‹ Volver</a>
-  <h1>Modelo 3D · Idilio Vistania</h1>
+  <h1 id="titulo">Modelo 3D · Idilio Vistania</h1>
+  <a id="otro" href="?m=reconstruido">Ver reconstruido</a>
 </div>
 
 <div class="panel">
@@ -80,7 +81,7 @@
   </div>
   <p class="nota ocultable">Arrastra para girar · pellizca para acercar · dos dedos para mover ·
     <b>Recorrer</b> para caminar por dentro del piso elegido.
-    Modelo volumétrico generado desde los planos (muros, columnas y losas).</p>
+    <span id="fuente">Modelo del proyecto (Revit ARQ-004).</span></p>
 </div>
 
 <div id="joy" aria-label="Joystick para caminar"><i></i></div>
@@ -92,8 +93,22 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-const NOMBRES = ["Sótano 02","Sótano 01","Semisótano","1er nivel","2do nivel","3er nivel","4to nivel",
-  "5to nivel","6to nivel","7mo nivel","8vo nivel","9no nivel","10mo nivel","11vo nivel","12vo nivel","Azotea","Techos"];
+// dos modelos: el del proyecto (Revit ARQ-004, por defecto) y el reconstruido desde los DXF
+const RECON = new URLSearchParams(location.search).get("m") === "reconstruido";
+const BASE = ["Sótano 02","Sótano 01","Semisótano","1er nivel","2do nivel","3er nivel","4to nivel",
+  "5to nivel","6to nivel","7mo nivel","8vo nivel","9no nivel","10mo nivel","11vo nivel","12vo nivel"];
+let NOMBRES = RECON ? BASE.concat(["Azotea","Techos"]) : BASE.concat(["13vo nivel","14vo nivel (techo)"]);
+let ARCHIVO = RECON ? "edificio.glb" : "arq004.glb";
+function rotularModelo(recon) {
+  document.getElementById("titulo").textContent = recon ? "Modelo reconstruido" : "Modelo del proyecto · ARQ-004";
+  const otro = document.getElementById("otro");
+  otro.textContent = recon ? "Ver ARQ-004" : "Ver reconstruido";
+  otro.href = recon ? "./" : "?m=reconstruido";
+  document.getElementById("fuente").textContent = recon
+    ? "Modelo aproximado generado desde los planos DXF (muros, columnas y losas)."
+    : "Modelo del proyecto (Revit ARQ-004: muros y losas).";
+}
+rotularModelo(RECON);
 
 const cont = document.getElementById("vista");
 const oscuro = matchMedia("(prefers-color-scheme: dark)").matches;
@@ -119,13 +134,14 @@ const grilla = new THREE.GridHelper(120, 24, oscuro ? 0x555555 : 0xbbb6ac, oscur
 escena.add(grilla);
 
 const niveles = {};   // "N05" -> [objetos]
-new GLTFLoader().load("edificio.glb", (gltf) => {
+function cargar(gltf) {
   const modelo = gltf.scene;
   modelo.traverse((o) => {
     if (o.isMesh) {
       const k = (o.name.match(/N\d\d/) || (o.parent && o.parent.name.match(/N\d\d/)) || [null])[0];
       if (k) (niveles[k] = niveles[k] || []).push(o);
       o.material.side = THREE.DoubleSide;
+      if (!o.geometry.attributes.normal) { o.material.flatShading = true; o.material.needsUpdate = true; }
     }
   });
   // bordes suaves para que se lean los muros
@@ -140,9 +156,16 @@ new GLTFLoader().load("edificio.glb", (gltf) => {
   grilla.position.y = new THREE.Box3().setFromObject(modelo).min.y;
   aplicar(true);
   document.getElementById("carga").remove();
-}, undefined, () => {
-  document.getElementById("carga").textContent = "No se pudo cargar el modelo. Revisa tu conexión.";
+}
+const cargador = new GLTFLoader();
+cargador.load(ARCHIVO, cargar, undefined, () => {
+  if (ARCHIVO !== "edificio.glb") {          // sin el modelo del proyecto: usa el reconstruido
+    ARCHIVO = "edificio.glb"; NOMBRES = BASE.concat(["Azotea","Techos"]); rotularModelo(true);
+    document.getElementById("otro").style.display = "none";
+    cargador.load(ARCHIVO, cargar, undefined, fallo);
+  } else fallo();
 });
+function fallo() { document.getElementById("carga").textContent = "No se pudo cargar el modelo. Revisa tu conexión."; }
 
 // ---------- piso por piso ----------
 const corte = document.getElementById("corte"), etiqueta = document.getElementById("nivel");
