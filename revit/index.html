@@ -7,10 +7,12 @@
 <meta name="robots" content="noindex, nofollow">
 <style>
   :root { --bg:#f4f2ee; --card:#ffffff; --ink:#1d1d1b; --muted:#6b6962; --line:#e2ded6;
-          --accent:#b3471d; --accent-ink:#ffffff; --warn:#a86a00; --warn-bg:#fff4dc; }
+          --accent:#b3471d; --accent-ink:#ffffff; --alt:#3d5a73; --alt-ink:#ffffff;
+          --warn:#a86a00; --warn-bg:#fff4dc; }
   @media (prefers-color-scheme: dark) {
     :root { --bg:#151513; --card:#1f1f1c; --ink:#f0eee9; --muted:#a6a39b; --line:#34332f;
-            --accent:#e0703f; --accent-ink:#1a0d06; --warn:#f0b84c; --warn-bg:#2e2513; }
+            --accent:#e0703f; --accent-ink:#1a0d06; --alt:#7fa6c6; --alt-ink:#0d1620;
+            --warn:#f0b84c; --warn-bg:#2e2513; }
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
@@ -23,17 +25,26 @@
   .sub { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
   .aviso { font-size: 14px; border-radius: 10px; padding: 10px 12px; margin: 0 0 14px;
     background: var(--warn-bg); color: var(--warn); display: none; }
-  h2 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
-    margin: 18px 4px 8px; font-weight: 600; }
+  section { background: color-mix(in srgb, var(--card) 55%, transparent); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px; margin: 0 0 18px; }
+  .etq { display: inline-block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    font-weight: 700; padding: 3px 8px; border-radius: 999px; margin-bottom: 6px; }
+  .proy .etq { background: var(--accent); color: var(--accent-ink); }
+  .recon .etq { background: var(--alt); color: var(--alt-ink); }
+  h2 { font-size: 18px; margin: 2px 0 2px; }
+  .desc { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+  h3 { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+    margin: 14px 2px 8px; font-weight: 600; }
   .piso { display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 14px 16px; margin: 0 0 8px; min-height: 54px; background: var(--card); color: var(--ink);
-    border: 1px solid var(--line); border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: 600; }
+    padding: 12px 14px; margin: 0 0 8px; min-height: 50px; background: var(--card); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 12px; text-decoration: none; font-size: 15px; font-weight: 600; }
   .piso:hover { border-color: var(--accent); }
-  .piso.todo { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .proy .todo { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .recon .todo { background: var(--alt); border-color: var(--alt); color: var(--alt-ink); }
   .piso span { font-weight: 400; font-size: 13px; opacity: .75; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .grid .piso { margin: 0; }
-  footer { color: var(--muted); font-size: 13px; margin-top: 18px; padding: 0 4px; }
+  footer { color: var(--muted); font-size: 13px; margin-top: 6px; padding: 0 4px; }
 </style>
 </head>
 <body>
@@ -43,34 +54,53 @@
   <p class="sub" id="sub">Vistas compartidas de Autodesk · se abren en el navegador.</p>
   <div class="aviso" id="aviso"></div>
 
-  <a class="piso todo" id="todo" href="#" target="_blank" rel="noopener">Edificio completo <span>3D</span></a>
+  <section class="proy" id="s-proy">
+    <span class="etq">Modelo del proyecto</span>
+    <h2>ARQ-004 · Revit original</h2>
+    <p class="desc">El modelo de Revit del proyecto (2026001-SDS-IV-XX-M3D-ARQ-004).</p>
+    <a class="piso todo" id="proy-todo" href="#" target="_blank" rel="noopener">Edificio completo <span>3D</span></a>
+    <h3>Piso por piso</h3>
+    <div class="grid" id="proy-pisos"></div>
+  </section>
 
-  <h2>Piso por piso</h2>
-  <div class="grid" id="pisos"></div>
+  <section class="recon" id="s-recon">
+    <span class="etq">Modelo reconstruido</span>
+    <h2>Reconstrucción desde los planos</h2>
+    <p class="desc">Modelo aproximado generado automáticamente a partir de los 17 planos DXF
+      (muros, losas, columnas, placas y vigas de referencia). No reemplaza al modelo del proyecto.</p>
+    <a class="piso todo" id="recon-todo" href="#" target="_blank" rel="noopener">Edificio completo <span>3D</span></a>
+    <h3>Piso por piso</h3>
+    <div class="grid" id="recon-pisos"></div>
+  </section>
 
-  <footer>Cada piso muestra su losa, muros, columnas, placas y las vigas que cargan la losa de arriba.
-    Gira con un dedo y acerca pellizcando.</footer>
+  <footer>Gira con un dedo, acerca pellizcando y desplázate con dos dedos.</footer>
 </main>
 
 <script src="../enlaces.js"></script>
 <script>
   (function () {
-    var E = window.ENLACES || {}, P = E.revit_pisos || [];
-    var todo = document.getElementById("todo");
-    if (E.revit) todo.href = E.revit; else todo.style.display = "none";
+    var E = window.ENLACES || {};
 
-    var cont = document.getElementById("pisos");
-    // de arriba hacia abajo, como se lee un edificio
-    P.slice().reverse().forEach(function (p) {
-      var a = document.createElement("a");
-      a.className = "piso"; a.href = p[1]; a.target = "_blank"; a.rel = "noopener";
-      a.textContent = p[0];
-      cont.appendChild(a);
-    });
+    function llenar(seccion, todoId, contId, urlTodo, pisos) {
+      var s = document.getElementById(seccion);
+      if (!urlTodo && !(pisos && pisos.length)) { s.style.display = "none"; return; }
+      var t = document.getElementById(todoId);
+      if (urlTodo) t.href = urlTodo; else t.style.display = "none";
+      var c = document.getElementById(contId);
+      (pisos || []).slice().reverse().forEach(function (p) {   // de arriba hacia abajo
+        var a = document.createElement("a");
+        a.className = "piso"; a.href = p[1]; a.target = "_blank"; a.rel = "noopener";
+        a.textContent = p[0];
+        c.appendChild(a);
+      });
+    }
+    llenar("s-proy", "proy-todo", "proy-pisos", E.arq, E.arq_pisos);
+    llenar("s-recon", "recon-todo", "recon-pisos", E.revit, E.revit_pisos);
 
-    var f = E.revit_pisos_actualizado || E.revit_actualizado;
-    if (f) {
-      var vence = new Date(new Date(f + "T00:00:00").getTime() + (E.revit_vigencia_dias || 30) * 86400000);
+    // vigencia: se toma la fecha más antigua de las dos secciones
+    var fechas = [E.arq_actualizado, E.revit_pisos_actualizado || E.revit_actualizado].filter(Boolean).sort();
+    if (fechas.length) {
+      var vence = new Date(new Date(fechas[0] + "T00:00:00").getTime() + (E.revit_vigencia_dias || 30) * 86400000);
       var txt = vence.toLocaleDateString("es-PE", { day: "numeric", month: "long", year: "numeric" });
       if (Date.now() >= vence.getTime()) {
         var av = document.getElementById("aviso");
