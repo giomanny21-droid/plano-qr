@@ -97,7 +97,7 @@
 
   <a class="btn" id="b-revit" href="revit/">
     <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 21V9l8-6 8 6v12z"/><path d="M9 21v-6h6v6M4 13h16"/></svg></span>
-    <span class="txt">Modelo 3D de Revit<small id="revit-sub">Edificio completo y piso por piso</small></span>
+    <span class="txt">Modelo 3D de Revit<small id="revit-sub">Modelo del proyecto y piso por piso</small></span>
   </a>
   <div class="aviso" id="aviso-revit"></div>
 
@@ -137,7 +137,7 @@
     boton("b-pdf", E.pdf);
     boton("b-dwg", E.dwg);
     // Revit: abre la página revit/ (edificio completo + un botón por piso)
-    boton("b-revit", (E.revit || (E.revit_pisos || []).length) ? "revit/" : "");
+    boton("b-revit", (E.arq || E.revit || (E.revit_pisos || []).length) ? "revit/" : "");
 
     // Shared View de Revit: avisa cuando ya pasaron sus días de vigencia
     if (E.revit && E.revit_actualizado) {
@@ -151,7 +151,7 @@
         ar.style.display = "block";
       } else {
         document.getElementById("revit-sub").textContent =
-          "Edificio completo y piso por piso · hasta el " + vence.toLocaleDateString("es-PE", opc);
+          "Modelo del proyecto y piso por piso · hasta el " + vence.toLocaleDateString("es-PE", opc);
       }
     }
 
